@@ -76,7 +76,8 @@ echo "==> Rust 目标与组件（为 nightly-2022-10-19 一并安装，便于在
 rustup target add riscv64gc-unknown-none-elf --toolchain nightly-2022-10-19
 rustup component add llvm-tools-preview --toolchain nightly-2022-10-19
 rustup component add rust-src --toolchain nightly-2022-10-19
-cargo install cargo-binutils
+# 勿用默认最新 0.4.x：依赖需 edition 2024，nightly-2022-10-19 的 Cargo 无法解析。0.3.6 与 2022 工具链匹配。
+cargo install cargo-binutils --version 0.3.6
 
 echo "==> 安装 QEMU 5.2 构建依赖（耗时较长）"
 dnf groupinstall -y "Development Tools"
