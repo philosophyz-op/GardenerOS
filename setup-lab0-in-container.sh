@@ -65,6 +65,11 @@ registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
 # 用系统 git 拉索引，终端可见 Counting/receiving 进度，避免误以为卡死
 [net]
 git-fetch-with-cli = true
+
+# 拉 crate 慢时避免默认过短超时；部分环境 HTTP/2 易断，可缓解 static.crates.io 报错
+[http]
+timeout = 600
+check-revoked = false
 EOF
 
 echo "==> 安装 nightly（与实验文档一致；工作目录用 rust-toolchain 固定版本）"
@@ -76,8 +81,9 @@ echo "==> Rust 目标与组件（为 nightly-2022-10-19 一并安装，便于在
 rustup target add riscv64gc-unknown-none-elf --toolchain nightly-2022-10-19
 rustup component add llvm-tools-preview --toolchain nightly-2022-10-19
 rustup component add rust-src --toolchain nightly-2022-10-19
-# 勿用 0.4.x（edition 2024）。装 0.3.6 时必须加 --locked，否则 crates 会升到 quote 等需 rustc 1.71+ 的版本，与 nightly-2022-10-19（约 1.66）冲突。
-cargo install cargo-binutils --version 0.3.6 --locked
+# 勿用 0.4.x（edition 2024）。须在 /tmp 下用「最新 nightly」的 cargo 安装：若在 /mnt 会因 rust-toolchain 固定为 1.66；且 1.66 拉 static.crates.io 易 30s 超时/HTTP2 断流。
+cd /tmp
+rustup run nightly cargo install cargo-binutils --version 0.3.6 --locked
 
 echo "==> 安装 QEMU 5.2 构建依赖（耗时较长）"
 dnf groupinstall -y "Development Tools"
