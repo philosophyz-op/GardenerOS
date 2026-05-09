@@ -16,9 +16,38 @@ fi
 export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
 export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
 
-echo "==> 安装 rustup（按实验文档：默认 nightly）"
+echo "==> 安装 rustup（按实验文档：默认 nightly；多镜像重试，避免 curl 18 部分传输）"
 if [[ ! -f "$HOME/.cargo/env" ]]; then
-  curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+  RUST_ARCH="$(uname -m)-unknown-linux-gnu"
+  RUST_INIT="/tmp/rustup-init.$$"
+  rustup_try_download() {
+    local url="$1"
+    echo "  下载: $url"
+    # -C - 断点续传; --retry 多次; 避免管道直连 sh 导致无法续传
+    curl -fL --connect-timeout 30 --max-time 0 \
+      --retry 8 --retry-delay 2 \
+      -C - -o "$RUST_INIT" "$url"
+  }
+  ok=0
+  for url in \
+    "https://mirrors.ustc.edu.cn/rust-static/rustup/dist/${RUST_ARCH}/rustup-init" \
+    "https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup/dist/${RUST_ARCH}/rustup-init" \
+    "https://rsproxy.cn/rustup/dist/${RUST_ARCH}/rustup-init" \
+    "https://static.rust-lang.org/rustup/dist/${RUST_ARCH}/rustup-init"; do
+    rm -f "$RUST_INIT" 2>/dev/null || true
+    if rustup_try_download "$url"; then
+      chmod +x "$RUST_INIT"
+      "$RUST_INIT" -y --default-toolchain nightly
+      rm -f "$RUST_INIT"
+      ok=1
+      break
+    fi
+    echo "  该地址失败，尝试下一镜像..."
+  done
+  if [[ "$ok" -ne 1 ]]; then
+    echo "错误: 无法从任一镜像下载 rustup-init，请检查容器网络或代理后重试。"
+    exit 1
+  fi
 fi
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
