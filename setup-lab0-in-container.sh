@@ -2,8 +2,8 @@
 # 在 openEuler 容器内执行：先进入挂载目录，例如 cd /mnt && bash setup-lab0-in-container.sh
 set -euo pipefail
 
-echo "==> 安装基础工具"
-dnf install -y curl vim gcc
+echo "==> 安装基础工具（含 git：cargo 拉 crates 索引时可走系统 git 并显示进度）"
+dnf install -y curl vim gcc git
 
 echo "==> 配置 Rust 镜像环境变量"
 if ! grep -q RUSTUP_DIST_SERVER ~/.bashrc 2>/dev/null; then
@@ -55,12 +55,16 @@ source "$HOME/.cargo/env"
 echo "==> cargo 使用国内镜像（HTTPS，避免实验文档里的 git://USTC 在容器内常报 Network is unreachable）"
 mkdir -p "$HOME/.cargo"
 cat > "$HOME/.cargo/config" << 'EOF'
-# 实验原文为 git://mirrors.ustc.edu.cn/...；Docker 内 git 协议(9418)常被拦，改用清华 HTTPS 索引，与「换国内源」目的相同。
+# 实验原文为 git://USTC；容器内 git:// 常不可达。HTTPS 清华索引首次 clone 体积大，可能 10～30 分钟无新输出，属正常。
 [source.crates-io]
 replace-with = 'tuna'
 
 [source.tuna]
 registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
+
+# 用系统 git 拉索引，终端可见 Counting/receiving 进度，避免误以为卡死
+[net]
+git-fetch-with-cli = true
 EOF
 
 echo "==> 安装 nightly（与实验文档一致；工作目录用 rust-toolchain 固定版本）"
