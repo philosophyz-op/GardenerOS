@@ -16,7 +16,7 @@ fi
 export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
 export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
 
-echo "==> 安装 rustup（默认 nightly，与实验一致可再切换）"
+echo "==> 安装 rustup（按实验文档：默认 nightly）"
 if [[ ! -f "$HOME/.cargo/env" ]]; then
   curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 fi
@@ -33,17 +33,16 @@ replace-with = 'ustc'
 registry = "git://mirrors.ustc.edu.cn/crates.io-index"
 EOF
 
-echo "==> 安装 nightly 与实验指定 toolchain"
+echo "==> 安装 nightly（与实验文档一致；工作目录用 rust-toolchain 固定版本）"
 rustup install nightly
 rustup default nightly
-rustup install nightly-2022-10-19 || true
-rustup default nightly-2022-10-19 2>/dev/null || rustup default nightly
+rustup install nightly-2022-10-19
 
-echo "==> Rust 目标与组件"
-rustup target add riscv64gc-unknown-none-elf
+echo "==> Rust 目标与组件（为 nightly-2022-10-19 一并安装，便于在 /mnt 下构建）"
+rustup target add riscv64gc-unknown-none-elf --toolchain nightly-2022-10-19
+rustup component add llvm-tools-preview --toolchain nightly-2022-10-19
+rustup component add rust-src --toolchain nightly-2022-10-19
 cargo install cargo-binutils
-rustup component add llvm-tools-preview
-rustup component add rust-src
 
 echo "==> 安装 QEMU 5.2 构建依赖（耗时较长）"
 dnf groupinstall -y "Development Tools"
