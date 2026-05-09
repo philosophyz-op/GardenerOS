@@ -52,14 +52,15 @@ fi
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
 
-echo "==> cargo 使用中科大源"
+echo "==> cargo 使用国内镜像（HTTPS，避免实验文档里的 git://USTC 在容器内常报 Network is unreachable）"
 mkdir -p "$HOME/.cargo"
 cat > "$HOME/.cargo/config" << 'EOF'
+# 实验原文为 git://mirrors.ustc.edu.cn/...；Docker 内 git 协议(9418)常被拦，改用清华 HTTPS 索引，与「换国内源」目的相同。
 [source.crates-io]
-replace-with = 'ustc'
+replace-with = 'tuna'
 
-[source.ustc]
-registry = "git://mirrors.ustc.edu.cn/crates.io-index"
+[source.tuna]
+registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
 EOF
 
 echo "==> 安装 nightly（与实验文档一致；工作目录用 rust-toolchain 固定版本）"
