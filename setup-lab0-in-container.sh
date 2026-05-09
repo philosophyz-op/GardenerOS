@@ -89,7 +89,7 @@ echo "==> 安装 QEMU 5.2 构建依赖（耗时较长）"
 dnf groupinstall -y "Development Tools"
 dnf install -y autoconf automake gcc gcc-c++ kernel-devel curl libmpc-devel mpfr-devel gmp-devel \
   glib2 glib2-devel make cmake gawk bison flex texinfo gperf libtool patchutils bc \
-  python3 ninja-build wget xz
+  python3 ninja-build wget xz pixman-devel zlib-devel libpng-devel
 
 echo "==> 编译安装 QEMU 5.2.0（可能需 10～40 分钟）"
 WORKDIR="${TMPDIR:-/tmp}"
