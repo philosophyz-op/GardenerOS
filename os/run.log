@@ -1,0 +1,43 @@
+qemu-system-riscv64 \
+	-machine virt \
+	-nographic \
+	-bios ../bootloader/opensbi.bin \
+	-device loader,file=target/riscv64gc-unknown-none-elf/release/os,addr=0x80200000
+
+OpenSBI v0.6
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name          : QEMU Virt Machine
+Platform HART Features : RV64ACDFIMSU
+Platform Max HARTs     : 8
+Current Hart           : 0
+Firmware Base          : 0x80000000
+Firmware Size          : 120 KB
+Runtime SBI Version    : 0.2
+
+MIDELEG : 0x0000000000000222
+MEDELEG : 0x000000000000b109
+PMP0    : 0x0000000080000000-0x000000008001ffff (A)
+PMP1    : 0x0000000000000000-0xffffffffffffffff (A,R,W,X)
+[kernel] Hello, world!
+heap_test passed!
+last 658 Physical Frames.
+FrameTracker:PPN=0x8056e
+FrameTracker:PPN=0x8056f
+FrameTracker:PPN=0x80570
+FrameTracker:PPN=0x80571
+FrameTracker:PPN=0x80572
+FrameTracker:PPN=0x80572
+FrameTracker:PPN=0x80571
+FrameTracker:PPN=0x80570
+FrameTracker:PPN=0x8056f
+FrameTracker:PPN=0x8056e
+frame_allocator_test passed!
+Panicked: PanicInfo { message: vpn VPN:0x8025d is mapped before mapping, location: Location { file: "src/mm/page_table.rs", line: 69, column: 9 }, can_unwind: true, force_no_backtrace: false }
